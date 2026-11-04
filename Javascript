@@ -1,1 +1,43 @@
 
+let soundEnabled = true;
+let soundPlayed = false;
+
+function playTestSound(type) {
+    if (!soundEnabled || soundPlayed) return;
+
+    soundPlayed = true;
+
+    const audio = new AudioContext();
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+
+    oscillator.type = "sine";
+
+    if (type === "correct") {
+        oscillator.frequency.setValueAtTime(880, audio.currentTime);
+        oscillator.frequency.setValueAtTime(1175, audio.currentTime + 0.12);
+    } else if (type === "wrong") {
+        oscillator.frequency.setValueAtTime(220, audio.currentTime);
+        oscillator.frequency.setValueAtTime(150, audio.currentTime + 0.15);
+    } else {
+        oscillator.frequency.setValueAtTime(440, audio.currentTime);
+        oscillator.frequency.setValueAtTime(330, audio.currentTime + 0.2);
+    }
+
+    gain.gain.setValueAtTime(0.25, audio.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+        0.001, audio.currentTime + 0.4
+    );
+
+    oscillator.start();
+    oscillator.stop(audio.currentTime + 0.4);
+
+    oscillator.onended = () => audio.close();
+}
+
+function resetQuestionSound() {
+    soundPlayed = false;
+}
